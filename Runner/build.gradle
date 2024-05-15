@@ -1,0 +1,15 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":Simulator")
+    implementation project(":TeamCode")
+
+    implementation files(project.property('openCVPath'))
+
+}

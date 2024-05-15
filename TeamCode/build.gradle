@@ -1,0 +1,27 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation project(":Simulator")
+
+    implementation files(project.property('openCVPath'))
+}
+
+task wrapper(type: Wrapper){
+    gradleVersion = '8.4'
+}
+
+task prepareKotlinBuildScriptModel {
+
+}
+
+compileJava.options.encoding = 'UTF-8'
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+}
