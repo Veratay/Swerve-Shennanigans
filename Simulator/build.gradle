@@ -6,7 +6,7 @@ plugins {
 
 project.ext.lwjglVersion = "3.3.3"
 project.ext.jomlVersion = "1.10.5"
-project.ext.lwjglNatives = "natives-windows";
+project.ext.lwjglNatives = project.property('lwjglPlatform');
 
 repositories {
     mavenCentral()

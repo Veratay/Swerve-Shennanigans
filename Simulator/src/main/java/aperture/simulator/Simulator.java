@@ -22,7 +22,7 @@ import java.util.HashMap;
 public class Simulator {
 
     public static boolean FREEZE = false;
-    public static boolean SWERVE = false;
+    public static int LOOPTIME = 20;
     //0 right, 1 center, 2 left.
     public static int markerPos = 0;
     static ElapsedTime timer = new ElapsedTime();
@@ -64,97 +64,34 @@ public class Simulator {
     }
 
     public static String getDebugString() {
-        return String.format("Pos: %.2f, %.2f, %.2f \n Intake power %.2f \n Right trigger: %.2f",positions.x,positions.y,positions.h,intake.getPower(), opMode.gamepad1.right_trigger);
-
+        return new String();
     }
 
     public static RobotModel robotModel = new RobotModel();
 
-    private static PhantomMotor FR = new PhantomMotor();
-    private static PhantomMotor FL = new PhantomMotor();
-    private static PhantomMotor BR = new PhantomMotor();
-    private static PhantomMotor BL = new PhantomMotor();
-
-    private static PhantomMotor SL1 = new PhantomMotor();
-    private static PhantomMotor SL2 = new PhantomMotor();
-    private static PhantomMotor SR1 = new PhantomMotor();
-    private static PhantomMotor SR2 = new PhantomMotor();
-
-    private static PhantomMotor intake = new PhantomMotor();
-    private static PhantomMotor depo = new PhantomMotor();
-    private static PhantomMotor active = new PhantomMotor();
-    private static PhantomMotor phantomMotor = new PhantomMotor();
-
-    private static PhantomServo arm = new PhantomServo();
-    private static PhantomServo elbow = new PhantomServo();
-    private static PhantomServo wrist = new PhantomServo();
-    private static PhantomServo claw = new PhantomServo();
-    private static PhantomServo door = new PhantomServo();
+    private static PhantomMotor Wheel1Drive = new PhantomMotor();
+    private static PhantomMotor Wheel2Drive = new PhantomMotor();
+    private static PhantomMotor Wheel3Drive = new PhantomMotor();
+    private static PhantomMotor Wheel4Drive = new PhantomMotor();
+    
+    private static PhantomMotor Wheel1Turn = new PhantomMotor();
+    private static PhantomMotor Wheel2Turn = new PhantomMotor();
+    private static PhantomMotor Wheel3Turn = new PhantomMotor();
+    private static PhantomMotor Wheel4Turn = new PhantomMotor();
 
 
     public static HardwareMap getHardwareMap() {
 
         HashMap<String,HardwareDevice> devices = new HashMap<>(); {{
-            devices.put("motorFrontRight",FR);
-            devices.put("motorFrontLeft",FL);
-            devices.put("motorBackRight",BR);
-            devices.put("motorBackLeft",BL);
+            devices.put("Wheel1Turn",Wheel1Turn);
+            devices.put("Wheel2Turn",Wheel1Turn);
+            devices.put("Wheel3Turn",Wheel1Turn);
+            devices.put("Wheel4Turn",Wheel1Turn);
+            devices.put("Wheel1Drive",Wheel1Drive);
+            devices.put("Wheel2Drive",Wheel1Drive);
+            devices.put("Wheel3Drive",Wheel1Drive);
+            devices.put("Wheel4Drive",Wheel1Drive);
 
-            devices.put("SR1",SR1);
-            devices.put("SR2",SR2);
-            devices.put("SL1",SL1);
-            devices.put("SL2",SL2);
-
-
-            devices.put("odoLeft",phantomMotor);
-
-            devices.put("intakeLeft",intake);
-            devices.put("intakeRight",intake);
-            devices.put("intakeMotor",active);
-            devices.put("depoMotor",depo);
-
-            devices.put("intakeServo",door);
-            devices.put("elbowServo",elbow);
-            devices.put("wristServo",wrist);
-            devices.put("clawServo",claw);
-            devices.put("shoulderLeftServo",arm);
-            devices.put("shoulderRightServo",arm);
-
-            devices.put("intakeTouch", (TouchSensor) () -> positions.intakePos < 10);
-            devices.put("depoTouch", (TouchSensor) () -> positions.depoPos < 10);
-
-            devices.put("cameraLeft", new WebcamName() {
-                @NonNull
-                @Override
-                public String getUsbDeviceNameIfAttached() {
-                    return "cameraLeft";
-                }
-
-                @Override
-                public boolean isAttached() {
-                    return false;
-                }
-
-                @Override
-                public boolean isWebcam() {
-                    return true;
-                }
-
-                @Override
-                public boolean isCameraDirection() {
-                    return false;
-                }
-
-                @Override
-                public boolean isSwitchable() {
-                    return false;
-                }
-
-                @Override
-                public boolean isUnknown() {
-                    return false;
-                }
-            });
         }}
 
         return new HardwareMap(new PhantomHardwareMapping<>(devices));
@@ -175,33 +112,21 @@ public class Simulator {
     public static void update() {
         double dt = timer.seconds();
         timer.reset();
- 
-        input.FR = FR.getPower();
-        input.FL = FL.getPower();
-        input.BR = BR.getPower();
-        input.BL = BL.getPower();
 
-        input.SL1 = SL1.getPower();
-        input.SL2 = SL2.getPower();
-        input.SR1 = SL1.getPower();
-        input.SR2 = SL2.getPower();
+        input.Wheel1Power = Wheel1Drive.getPower();
+        input.Wheel2Power = Wheel2Drive.getPower();
+        input.Wheel3Power = Wheel3Drive.getPower();
+        input.Wheel4Power = Wheel4Drive.getPower();
 
-        input.intake = intake.getPower();
-        input.depo = depo.getPower();
-        input.door = door.pos;
-        input.elbow = elbow.pos;
-        input.arm = arm.pos;
-        System.out.println("armPos: " + input.arm);
-        input.wrist = wrist.pos;
-        input.claw = claw.pos;
-        input.active = active.getPower();
+        input.Wheel1Turn = Wheel1Turn.getPower();
+        input.Wheel2Turn = Wheel2Turn.getPower();
+        input.Wheel3Turn = Wheel3Turn.getPower();
+        input.Wheel4Turn = Wheel4Turn.getPower();
 
         robotModel.tick(input,dt);
 
-        intake.pos = positions.intakePos;
-        depo.pos = positions.depoPos;
         try {
-            Thread.sleep(20);
+            Thread.sleep(LOOPTIME);
         } catch (InterruptedException ignored) {
             System.out.println("Finished :)");
         }

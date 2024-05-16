@@ -130,7 +130,8 @@ public class Gamepad {
     public void update(long window) {
         left_stick_x = (float) (glfwGetKey(window, GLFW_KEY_RIGHT)==GLFW_PRESS ? 1.0 : glfwGetKey(window, GLFW_KEY_LEFT)==GLFW_PRESS ? -1.0 : 0.0);
         left_stick_y = (float) (glfwGetKey(window, GLFW_KEY_DOWN)==GLFW_PRESS ? 1.0 : glfwGetKey(window, GLFW_KEY_UP)==GLFW_PRESS ? -1.0 : 0.0);
-        right_stick_x = (float) (glfwGetKey(window, GLFW_KEY_E)==GLFW_PRESS ? 1.0 : glfwGetKey(window, GLFW_KEY_Q)==GLFW_PRESS ? -1.0 : 0.0);
+        right_stick_x = (float) (glfwGetKey(window, GLFW_KEY_L)==GLFW_PRESS ? 1.0 : glfwGetKey(window, GLFW_KEY_J)==GLFW_PRESS ? -1.0 : 0.0);
+        right_stick_y = (float) (glfwGetKey(window, GLFW_KEY_K)==GLFW_PRESS ? 1.0 : glfwGetKey(window, GLFW_KEY_I)==GLFW_PRESS ? -1.0 : 0.0);
 
         if(glfwGetGamepadState(num,state)) {
             a = state.buttons(GLFW_GAMEPAD_BUTTON_A) == GLFW_PRESS;
