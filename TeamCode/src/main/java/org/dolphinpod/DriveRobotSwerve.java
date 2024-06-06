@@ -25,6 +25,17 @@ public class DriveRobotSwerve extends LinearOpMode {
             if(gamepad1.b && !wasBPressed) {
                 Simulator.FREEZE = !Simulator.FREEZE;
             }
+
+            Wheel1Turn.setPower(gamepad1.left_stick_x + gamepad1.right_stick_x);
+            Wheel2Turn.setPower(gamepad1.left_stick_x);
+            Wheel3Turn.setPower(gamepad1.left_stick_x);
+            Wheel4Turn.setPower(gamepad1.left_stick_x);
+
+
+            Wheel1Drive.setPower(gamepad1.left_stick_y + gamepad1.right_stick_y);
+            Wheel2Drive.setPower(gamepad1.left_stick_y);
+            Wheel3Drive.setPower(gamepad1.left_stick_y);
+            Wheel4Drive.setPower(gamepad1.left_stick_y);
             wasBPressed = gamepad1.b;
 
             telemetry.update();

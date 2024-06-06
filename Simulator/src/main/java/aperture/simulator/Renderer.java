@@ -578,8 +578,8 @@ public class Renderer {
             robotCamera.setRotation(rot.x,rot.y);
             robotProjection = projection;
         } else {
-            robotCamera.setPosition((float)-(Simulator.positions.x+Math.cos(Simulator.positions.h)*RobotRenderer.drivePodLength/2.0),0,
-                    (float)(Simulator.positions.y+Math.sin(Simulator.positions.h)*RobotRenderer.drivePodLength/2.0));
+//            robotCamera.setPosition((float)-(Simulator.positions.x+Math.cos(Simulator.positions.h)*RobotRenderer.drivePodLength/2.0),0,
+//                    (float)(Simulator.positions.y+Math.sin(Simulator.positions.h)*RobotRenderer.drivePodLength/2.0));
             robotCamera.setRotation(0,(float)Simulator.positions.h);
         }
 

@@ -19,14 +19,14 @@ public class RobotModel {
 
     public RobotModel() {
         DcMotorDynamics driveMotor = new DcMotorDynamics(torqueConstant,resistance,inductance,gear_ratio/1.2,driveBaseMotorLoad,driveBaseMotorFriction);
-        DcMotorDynamics turnMotor = new DcMotorDynamics(torqueConstant,resistance,inductance,gear_ratio/1.2,driveBaseMotorLoad,driveBaseMotorFriction);
+        DcMotorDynamics turnMotor = new DcMotorDynamics(torqueConstant/2,resistance,inductance,gear_ratio*2,driveBaseMotorLoad,driveBaseMotorFriction);
         swerveDrivebaseModel = new SwerveDrivebaseModel(driveMotor,turnMotor,width,length,wheelRadius,mass,rotationalInertia,
-                new MagicTireFormula(0.013,2.9,100,1),0.01);
+                new MagicTireFormula(0.013,2.9,50,1),0.01);
         swerveSolver = new RungeKutta4<>(swerveDrivebaseModel.getStartingConfig(),swerveDrivebaseModel);
     }
 
-    private final SwerveDrivebaseModel swerveDrivebaseModel;
-    private final RungeKutta4<SwerveDrivebaseModel.Input> swerveSolver;
+    public final SwerveDrivebaseModel swerveDrivebaseModel;
+    public final RungeKutta4<SwerveDrivebaseModel.Input> swerveSolver;
 
     private final static double torqueConstant =  0.0188605;
     private final static double resistance = 1.15674;
@@ -42,6 +42,7 @@ public class RobotModel {
     public static double rollingFrictionConstant = 0.5;
     public static double driveBaseMotorFriction =  mass*rollingFrictionConstant/4.0/gear_ratio; //rolling friction on wheels
     public static double voltage = 12;
+    public static double turnVoltage = 4.8;
 
     private final static int plotSamples = 500;
     private final static double plotPollRate = 0.01; //seconds
@@ -94,28 +95,28 @@ public class RobotModel {
                 input.Wheel3Power*voltage,
                 input.Wheel4Power*voltage
         },new double[] {
-                input.Wheel1Turn*voltage,
-                input.Wheel2Turn*voltage,
-                input.Wheel3Turn*voltage,
-                input.Wheel4Turn*voltage
+                input.Wheel1Turn*turnVoltage,
+                input.Wheel2Turn*turnVoltage,
+                input.Wheel3Turn*turnVoltage,
+                input.Wheel4Turn*turnVoltage
         });
         for (int i=0; i<subSteps; i++) {
             swerveSolver.step(input1,dt/(double) subSteps);
         }
 
-        y = -swerveSolver.state[10]*dt;
-        x = swerveSolver.state[11]*dt;
-        robotPositions.h += swerveSolver.state[12]*dt;
+        x = swerveSolver.state[5*4]*dt;
+        y = swerveSolver.state[5*4+1]*dt;
+        robotPositions.h += swerveSolver.state[5*4+2]*dt;
 
 
         if(timeSinceLastPoll>plotPollRate) {
             swerveDrivebaseModel.calc(swerveSolver.state,input1);
-            for(int w=0; w<2; w++) {
+            for(int w=0; w<4; w++) {
                 wheelSlipPlot[w][plotSamples-1] = swerveDrivebaseModel.lastCalculatedSlips[w];
                 wheelForcePlot[w][plotSamples-1] = swerveDrivebaseModel.lastCalculatedForces[w];
                 motorSpeedPlot[w][plotSamples-1] = swerveSolver.state[1+w*5];
                 motorCurrentPlot[w][plotSamples-1] = swerveSolver.state[w*5];
-                robotSpeedPlot[w][plotSamples-1] = swerveSolver.state[11];
+                robotSpeedPlot[w][plotSamples-1] = Math.hypot(swerveSolver.state[21],swerveSolver.state[22]);
             }
                 timeSinceLastPoll = 0;
         }

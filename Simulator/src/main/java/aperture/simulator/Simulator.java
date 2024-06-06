@@ -84,13 +84,13 @@ public class Simulator {
 
         HashMap<String,HardwareDevice> devices = new HashMap<>(); {{
             devices.put("Wheel1Turn",Wheel1Turn);
-            devices.put("Wheel2Turn",Wheel1Turn);
-            devices.put("Wheel3Turn",Wheel1Turn);
-            devices.put("Wheel4Turn",Wheel1Turn);
+            devices.put("Wheel2Turn",Wheel2Turn);
+            devices.put("Wheel3Turn",Wheel3Turn);
+            devices.put("Wheel4Turn",Wheel4Turn);
             devices.put("Wheel1Drive",Wheel1Drive);
-            devices.put("Wheel2Drive",Wheel1Drive);
-            devices.put("Wheel3Drive",Wheel1Drive);
-            devices.put("Wheel4Drive",Wheel1Drive);
+            devices.put("Wheel2Drive",Wheel2Drive);
+            devices.put("Wheel3Drive",Wheel3Drive);
+            devices.put("Wheel4Drive",Wheel4Drive);
 
         }}
 

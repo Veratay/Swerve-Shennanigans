@@ -12,7 +12,7 @@ public class SwerveDrivebaseModel implements RungeKutta4.TimeInvariantDiffEqSyst
         double[] WheelPowerInputs;
 
         public Input(double[] powers, double[] turns) {
-            WheelPowerInputs= turns;
+            WheelTurnInputs= turns;
             WheelPowerInputs = powers;
         }
     }
@@ -38,26 +38,30 @@ public class SwerveDrivebaseModel implements RungeKutta4.TimeInvariantDiffEqSyst
         this.tractionModel = tractionModel;
         this.rotationalInteria = rotationalInteria;
         this.lateralTrail = alignWeight;
-    }
 
-    int moduleStateSize = 5;
-
-    double[] lastCalculatedSlips = new double[2];
-    double[] lastCalculatedForces = new double[2];
-    @Override
-    public double[] calc(double[] state, Input input) {
-
-        int x = moduleStateSize*2;
-        int y = moduleStateSize*2+1;
-        int h = moduleStateSize*2+2;
-        double[] res = new double[moduleStateSize*4 + 3];
-
-        Vector2d[] positions = new Vector2d[] {
+        positions = new Vector2d[] {
                 new Vector2d(width/2.0,length/2.0),
                 new Vector2d(-width/2.0,length/2.0),
                 new Vector2d(-width/2.0,-length/2.0),
                 new Vector2d(width/2.0,-length/2.0),
         };
+    }
+
+    int moduleStateSize = 5;
+
+    double[] lastCalculatedSlips = new double[4];
+    double[] lastCalculatedForces = new double[4];
+
+    public Vector2d[] positions;
+    @Override
+    public double[] calc(double[] state, Input input) {
+
+        int x = moduleStateSize*4;
+        int y = moduleStateSize*4+1;
+        int h = moduleStateSize*4+2;
+        double[] res = new double[moduleStateSize*4 + 3];
+
+
 
         for(int i=0; i<4; i++) {
 
@@ -84,15 +88,19 @@ public class SwerveDrivebaseModel implements RungeKutta4.TimeInvariantDiffEqSyst
             Vector2d tractionForce = new Vector2d(tractionModel.calc(slip.x),tractionModel.calc(slip.y));
 
             robotVel.normalize();
-            double aligningMoment = tractionForce.y*lateralTrail*(new Vector2d(state[y],-state[x]).dot(wheelAxis));
-            double[] turnMotorState = turnMotorModel.calc(new double[] { state[turnMotorCurrent], state[turnMotorVelocity] },new Double[]{ input.WheelTurnInputs[i], aligningMoment});
+            double angle = Math.atan2(state[y]*wheelAxis.x - state[x]*wheelAxis.y,state[x]*wheelAxis.x + state[y]*wheelAxis.y);
+            double tan = Math.tan(angle);
+            tan = Double.isNaN(tan) ? 0 : tan;
+            tan = Math.max(Math.min(1000,tan),-1000);
+            double aligningMoment = -Math.abs(tractionForce.y)*lateralTrail*tan;
+            double[] turnMotorState = turnMotorModel.calc(new double[] { state[turnMotorCurrent], state[turnMotorVelocity] },new Double[]{ input.WheelTurnInputs[i], aligningMoment*1000});
             double[] driveMotorState = driveMotorModel.calc(new double[] { state[driveMotorCurrent], state[driveMotorVelocity] },new Double[]{ input.WheelPowerInputs[i], -tractionForce.x*wheelRadius/2.0});
 
             Vector2d wheelForce = tractionForce.mul(wheelNormalForce);
             Vector2d robotForce = wheelForce.mul(new Matrix2d().rotate(state[direction]));
 
             Vector2d momentTangent = new Vector2d(-positions[i].y,positions[i].x).normalize();
-            double moment = robotForce.dot(momentTangent)*width/2.0;
+            double moment = robotForce.dot(momentTangent)*positions[i].length();
 
             res[turnMotorCurrent] = turnMotorState[0];
             res[turnMotorVelocity] = turnMotorState[1];
@@ -106,13 +114,15 @@ public class SwerveDrivebaseModel implements RungeKutta4.TimeInvariantDiffEqSyst
 
             lastCalculatedForces[i] = wheelForce.y;
             lastCalculatedSlips[i] = slip.x;
+
+//            System.out.println("SLIP: i: " + i + "power: " + input.WheelPowerInputs[i] + "s;ip " + slip.toString() + "force" + robotForce.toString());
         }
 
         return res;
     }
 
     public double[] getStartingConfig() {
-        double[] res = new double[moduleStateSize*2 + 3];
+        double[] res = new double[moduleStateSize*4 + 3];
 
         res[4] = Math.toRadians(0);
         res[5+4] = Math.toRadians(0);
